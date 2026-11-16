@@ -1,12 +1,17 @@
 
 import Fastify from "fastify";
 import dotenv from "dotenv";
+import { AgentModel } from "./models/agent.model";
 import { runAgent } from "./agent";
 import { DockerSandboxManager } from
   "../../../sandbox/docker-manager";
 import { randomUUID } from "bullmq/dist/esm/utils";
 
+import { connectDatabase } from "./config/database";
+import { agentRoutes } from "./routes/agent.routes";
+
 dotenv.config();
+
 
 const app = Fastify({
   logger: true
@@ -15,18 +20,27 @@ const app = Fastify({
 
 app.post("/api/agents/run", async (request, reply) => {
   const body = request.body as {
+    name?: string;
     task?: string;
   };
 
-  if (!body?.task?.trim()) {
-    return reply.code(400).send({
-      error: "Task is required"
-    });
-  }
+  console.log("Received request to run agent:", body);
 
   const sandbox = new DockerSandboxManager();
-
   const executionId = randomUUID();
+
+  const agent = await AgentModel.findOne({
+
+    name: body.name
+
+  }); 
+
+
+  if (!agent) {
+    return reply.code(404).send({
+      error: "Agent not found"
+    });
+  }
 
   try {
     const container = await sandbox.create(
@@ -41,7 +55,8 @@ app.post("/api/agents/run", async (request, reply) => {
     }, "Agent sandbox created");
 
     const result = await runAgent(
-      body.task,
+      agent,
+      body.task || "No task provided",
       sandbox
     );
 
@@ -72,12 +87,19 @@ app.get("/health", async () => ({
   service: "agents-hub"
 }));
 
-const port = Number(process.env.PORT || 3000);
+async function startServer() {
+  await connectDatabase();
 
-app.listen({
-  port,
-  host: "0.0.0.0"
-}).catch(error => {
-  app.log.error(error);
+  // Register Fastify routes here.
+  await app.register(agentRoutes);
+  await app.listen({
+    port: Number(process.env.PORT || 3000),
+    host: "0.0.0.0"
+  });
+}
+
+startServer().catch(error => {
+  console.error(error);
   process.exit(1);
 });
+
