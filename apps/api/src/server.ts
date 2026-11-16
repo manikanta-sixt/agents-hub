@@ -1,6 +1,9 @@
 
 import Fastify from "fastify";
+import fastifyStatic from "@fastify/static";
 import dotenv from "dotenv";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { AgentModel } from "./models/agent.model";
 import { runAgent } from "./agent";
 import { DockerSandboxManager } from
@@ -92,6 +95,13 @@ async function startServer() {
 
   // Register Fastify routes here.
   await app.register(agentRoutes);
+  const webRoot = fileURLToPath(new URL("../public/", import.meta.url));
+  if (existsSync(webRoot)) {
+    await app.register(fastifyStatic, { root: webRoot });
+  } else {
+    app.log.warn("Web UI build not found; run `npm run build:web` or `npm run dev:web`");
+  }
+
   await app.listen({
     port: Number(process.env.PORT || 3000),
     host: "0.0.0.0"

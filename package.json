@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx apps/api/src/server.ts"
+    "dev": "tsx apps/api/src/server.ts",
+    "dev:web": "vite --config apps/web/vite.config.js",
+    "build:web": "vite build --config apps/web/vite.config.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +22,7 @@
   },
   "homepage": "https://github.com/maniyedidi/agents-hub#readme",
   "dependencies": {
+    "@fastify/static": "^10.1.11",
     "bullmq": "^6.7.6",
     "dockerode": "^5.0.1",
     "dotenv": "^18.0.10",
@@ -27,12 +30,15 @@
     "ioredis": "^6.0.0",
     "mongoose": "^9.12.1",
     "ollama": "^0.6.4",
-    "pg": "^8.23.1"
+    "pg": "^8.23.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@types/dockerode": "^4.0.2",
     "@types/node": "^26.6.6",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
   }
 }
