@@ -1,0 +1,37 @@
+{
+  "name": "agents-hub",
+  "version": "1.0.0",
+  "description": "A Node.JS AI agent that runs commands in an isolated Docker sandbox , using a local / remote model",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx apps/api/src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maniyedidi/agents-hub.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/maniyedidi/agents-hub/issues"
+  },
+  "homepage": "https://github.com/maniyedidi/agents-hub#readme",
+  "dependencies": {
+    "bullmq": "^6.7.6",
+    "dockerode": "^5.0.1",
+    "dotenv": "^18.0.10",
+    "fastify": "^5.12.8",
+    "ioredis": "^6.0.0",
+    "ollama": "^0.6.4",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/dockerode": "^4.0.2",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
