@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { DockerSandboxManager } from "../../../sandbox/docker-manager";
 
 import { createWorkspaceTools } from "../../../packages/tools/workspace";
+import { searchMemory } from "./services/memory";
 
 
 const OLLAMA_URL =
@@ -56,10 +57,24 @@ const tools = [
                 required: ["path", "content"]
             }
         }
+    },
+    {
+        type: "function",
+        function: {
+            name: "search_memory",
+            description: "Semantic search over the text files uploaded to this agent's memory",
+            parameters: {
+                type: "object",
+                properties: {
+                    query: { type: "string", description: "What to look for" }
+                },
+                required: ["query"]
+            }
+        }
     }
 ];
 
-async function executeTool(name: string, args: any, workspaceTools: ReturnType<typeof createWorkspaceTools>) {
+async function executeTool(name: string, args: any, workspaceTools: ReturnType<typeof createWorkspaceTools>, agentId: string) {
     switch (name) {
         case "list_files":
             return await workspaceTools.listFiles();
@@ -69,6 +84,9 @@ async function executeTool(name: string, args: any, workspaceTools: ReturnType<t
 
         case "write_file":
             return await workspaceTools.writeFile(args.path, args.content);
+
+        case "search_memory":
+            return await searchMemory(agentId, args.query);
 
         default:
             throw new Error(`Unknown tool: ${name}`);
@@ -141,7 +159,7 @@ export async function runAgent(agent: any, task: string, sandbox: DockerSandboxM
             let result: string;
 
             try {
-                const toolResult = await executeTool(name, args, workspaceTools);
+                const toolResult = await executeTool(name, args, workspaceTools, String(agent._id));
                 result = JSON.stringify(toolResult);
             } catch (error) {
                 result = JSON.stringify({

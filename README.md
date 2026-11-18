@@ -41,6 +41,8 @@ The React UI lets you list, create, update, and delete agents through the `/api/
 | `GET` | `/api/agents/:id` | Get an agent |
 | `PUT` | `/api/agents/:id` | Update an agent |
 | `DELETE` | `/api/agents/:id` | Delete an agent |
+| `POST` | `/api/agents/:id/memory` | Ingest a `.txt`/`.md` file into the agent's memory (multipart field `file`, or JSON `{ "name", "text" }`) |
+| `GET` | `/api/agents/:id/memory/search?q=...` | Semantic search over the agent's memory |
 | `POST` | `/api/agents/run` | Run an agent: `{ "name": "<agent name>", "task": "<task>" }` |
 
 Example:
@@ -49,6 +51,15 @@ Example:
 curl -X POST localhost:3000/api/agents/run \
   -H 'content-type: application/json' \
   -d '{"name":"my-agent","task":"Create hello.js that prints hello"}'
+```
+
+## Agent memory (text files)
+
+Upload a text file to an agent; it is split into ~800-character overlapping chunks, embedded with Ollama, and stored in Qdrant scoped to that agent. Re-uploading a file with the same name replaces its chunks. Enable the `search_memory` tool on the agent so it can query this memory during a run.
+
+```bash
+curl -F "file=@notes.txt" localhost:3000/api/agents/<agent-id>/memory
+curl "localhost:3000/api/agents/<agent-id>/memory/search?q=refund+policy"
 ```
 
 ## How it works
