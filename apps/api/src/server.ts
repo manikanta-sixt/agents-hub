@@ -11,6 +11,7 @@ import { DockerSandboxManager } from
 import { randomUUID } from "bullmq/dist/esm/utils";
 
 import { connectDatabase } from "./config/database";
+import { connectQdrant } from "./config/qdrant";
 import { agentRoutes } from "./routes/agent.routes";
 
 dotenv.config();
@@ -92,6 +93,7 @@ app.get("/health", async () => ({
 
 async function startServer() {
   await connectDatabase();
+  await connectQdrant();
 
   // Register Fastify routes here.
   await app.register(agentRoutes);
