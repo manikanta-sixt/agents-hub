@@ -75,28 +75,16 @@ async function executeTool(name: string, args: any, workspaceTools: ReturnType<t
     }
 }
 
-export async function runAgent(task: string, sandbox: DockerSandboxManager) {
+export async function runAgent(agent: any, task: string, sandbox: DockerSandboxManager) {
+
+    // All tools registered in your application
+
     const workspaceTools = createWorkspaceTools(sandbox);
+
     const messages: any[] = [
         {
             role: "system",
-            content: `
-You are a professional autonomous coding agent.
-
-Your responsibilities:
-1. Understand the user's task.
-2. Inspect existing workspace files.
-3. Create an implementation plan.
-4. Use tools to create or update files.
-5. Verify your work where possible.
-6. Explain what you completed.
-
-Rules:
-- Only work inside your workspace.
-- Never claim that you executed or tested code unless you actually did.
-- Use tools when you need to inspect or modify files.
-- Ask for clarification if essential requirements are missing.
-`
+            content: agent.instructions
         },
         {
             role: "user",
@@ -104,7 +92,7 @@ Rules:
         }
     ];
 
-    const maxSteps = 10;
+    const maxSteps = agent.maxSteps;
 
     for (let step = 0; step < maxSteps; step++) {
         const response = await fetch(
@@ -115,7 +103,7 @@ Rules:
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: MODEL,
+                    model: agent.model.name,
                     messages,
                     tools,
                     stream: false
