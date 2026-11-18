@@ -16,8 +16,7 @@ export function getQdrant() {
   return client;
 }
 
-export const QDRANT_COLLECTION =
-  process.env.QDRANT_COLLECTION || "agents_hub_memory";
+export const QDRANT_COLLECTION = process.env.QDRANT_COLLECTION || "agents_hub_memory";
 
 // Embed text with Ollama (default model: nomic-embed-text, 768 dims).
 export async function embed(text: string): Promise<number[]> {

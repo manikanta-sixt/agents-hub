@@ -1,7 +1,3 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Commands
 
 - `npm run dev` — API server via `tsx apps/api/src/server.ts` (port `PORT`, default 3000).
@@ -24,10 +20,10 @@ Agents are **MongoDB documents** (mongoose, [agent.model.ts](apps/api/src/models
 3. [agent.ts](apps/api/src/agent.ts) — `runAgent` loops up to `agent.maxSteps` calling Ollama `/api/chat`, executes `tool_calls`, and appends `role: "tool"` results until the model answers without tool calls. The `tools` schema array is global; `agent.tools` is not used to filter it yet.
 4. [packages/tools/workspace.ts](packages/tools/workspace.ts) — `listFiles`/`readFile`/`writeFile` implemented by running `find`/`node -e` **inside the container**; paths are confined to `/workspace`.
 5. [sandbox/docker-manager.ts](sandbox/docker-manager.ts) — hardened container (no network, read-only rootfs, caps dropped, pid/memory/cpu limits, noexec `/tmp`) with host dir `WORKSPACE_ROOT/<agentId>/<executionId>` bind-mounted at `/workspace`. Currently uses env-var defaults, not the agent's `runtime` settings; `server.ts` hard-codes agentId `"coder"`.
-6. [config/qdrant.ts](apps/api/src/config/qdrant.ts) — Qdrant client, `embed()` (Ollama `/api/embed`) and `connectQdrant()`, which creates the collection on startup. `EMBEDDING_DIMENSIONS` must match the embedding model. Vectors are read/written via `services/memory.ts` (`chunkText`, `ingestText`, `searchMemory`), exposed by `routes/memory.routes.ts` and the `search_memory` agent tool. Memory is scoped per agent via an `agentId` payload filter; point IDs are deterministic (agent+file+chunk) so re-ingesting overwrites.
+6. [config/qdrant.ts](apps/api/src/config/qdrant.ts) — Qdrant client, `embed()` (Ollama `/api/embed`) and `connectQdrant()`, which creates the collection on startup. `EMBEDDING_DIMENSIONS` must match the embedding model. Nothing reads/writes vectors yet.
 7. [apps/web](apps/web) — single-file React 19 UI ([main.jsx](apps/web/src/main.jsx)) for agent CRUD; mirrors the tool/image allowlists as constants.
 
-Adding a tool means touching: the `tools` schema array and `executeTool` switch in `agent.ts`, the implementation in `packages/tools`, `ALLOWED_TOOLS` in the routes (`search_memory` is the reference example), and `AVAILABLE_TOOLS` in `main.jsx`. Adding an allowed image means updating `ALLOWED_IMAGES` in the routes and `AVAILABLE_IMAGES` in `main.jsx`.
+Adding a tool means touching: the `tools` schema array and `executeTool` switch in `agent.ts`, the implementation in `packages/tools`, `ALLOWED_TOOLS` in the routes, and `AVAILABLE_TOOLS` in `main.jsx`. Adding an allowed image means updating `ALLOWED_IMAGES` in the routes and `AVAILABLE_IMAGES` in `main.jsx`.
 
 ## Known rough edges
 

@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { DockerSandboxManager } from "../../../sandbox/docker-manager";
 
 import { createWorkspaceTools } from "../../../packages/tools/workspace";
+
 import { searchMemory } from "./services/memory";
 
 
@@ -57,16 +58,16 @@ const tools = [
                 required: ["path", "content"]
             }
         }
-    },
-    {
-        type: "function",
+    },{
+        type:"function",
         function: {
             name: "search_memory",
-            description: "Semantic search over the text files uploaded to this agent's memory",
+            description: "Search an agent's memory for relevant information",
             parameters: {
                 type: "object",
                 properties: {
-                    query: { type: "string", description: "What to look for" }
+                    query: { type: "string" },
+                    limit: { type: "number" }
                 },
                 required: ["query"]
             }
@@ -84,7 +85,7 @@ async function executeTool(name: string, args: any, workspaceTools: ReturnType<t
 
         case "write_file":
             return await workspaceTools.writeFile(args.path, args.content);
-
+        
         case "search_memory":
             return await searchMemory(agentId, args.query);
 
