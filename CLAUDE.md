@@ -21,7 +21,7 @@ Agents are **MongoDB documents** (mongoose, [agent.model.ts](apps/api/src/models
 4. [packages/tools/workspace.ts](packages/tools/workspace.ts) — `listFiles`/`readFile`/`writeFile` implemented by running `find`/`node -e` **inside the container**; paths are confined to `/workspace`.
 5. [sandbox/docker-manager.ts](sandbox/docker-manager.ts) — hardened container (no network, read-only rootfs, caps dropped, pid/memory/cpu limits, noexec `/tmp`) with host dir `WORKSPACE_ROOT/<agentId>/<executionId>` bind-mounted at `/workspace`. Currently uses env-var defaults, not the agent's `runtime` settings; `server.ts` hard-codes agentId `"coder"`.
 6. [config/qdrant.ts](apps/api/src/config/qdrant.ts) — Qdrant client, `embed()` (Ollama `/api/embed`) and `connectQdrant()`, which creates the collection on startup. `EMBEDDING_DIMENSIONS` must match the embedding model. Nothing reads/writes vectors yet.
-7. [apps/web](apps/web) — single-file React 19 UI ([main.jsx](apps/web/src/main.jsx)) for agent CRUD; mirrors the tool/image allowlists as constants.
+7. [apps/web](apps/web) — single-file React 19 UI ([main.jsx](apps/web/src/main.jsx)) for agent CRUD and the per-agent "Files" upload/search modal (`MemoryModal`); mirrors the tool/image allowlists as constants.
 
 Adding a tool means touching: the `tools` schema array and `executeTool` switch in `agent.ts`, the implementation in `packages/tools`, `ALLOWED_TOOLS` in the routes, and `AVAILABLE_TOOLS` in `main.jsx`. Adding an allowed image means updating `ALLOWED_IMAGES` in the routes and `AVAILABLE_IMAGES` in `main.jsx`.
 
